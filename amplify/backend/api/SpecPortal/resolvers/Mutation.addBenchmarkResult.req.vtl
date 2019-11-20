@@ -1,0 +1,28 @@
+## [Start] Prepare DynamoDB PutItem Request. **
+$util.qr($context.args.input.put("createdAt", $util.defaultIfNull($ctx.args.input.createdAt, $util.time.nowISO8601())))
+$util.qr($context.args.input.put("updatedAt", $util.defaultIfNull($ctx.args.input.updatedAt, $util.time.nowISO8601())))
+$util.qr($context.args.input.put("__typename", "BenchmarkResults"))
+$util.qr($context.args.input.put("epochMilliSeconds", $util.time.nowEpochMilliSeconds()))
+{
+  "version": "2017-02-28",
+  "operation": "UpdateItem",
+  "key": {
+    "team": {
+      "S": "${ctx.args.input.team}"
+    }
+  },
+  "update": {
+    "expression": "SET #epochMilliSeconds = :epochMilliSeconds, #status = :status ADD #score :score",
+    "expressionNames": {
+      "#epochMilliSeconds": "epochMilliSeconds",
+      "#status": "status",
+      "#score": "score"
+    },
+    "expressionValues": {
+      ":epochMilliSeconds": { "N": $util.time.nowEpochMilliSeconds() },
+      ":status": { "S": "${ctx.args.input.status}" },
+      ":score": { "N": ${ctx.args.input.score} }
+    }
+  }
+}
+## [End] Prepare DynamoDB PutItem Request. **

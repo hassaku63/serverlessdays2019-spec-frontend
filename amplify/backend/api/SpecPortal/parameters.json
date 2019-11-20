@@ -1,0 +1,4 @@
+{
+    "AppSyncApiName": "SpecPortal",
+    "DynamoDBBillingMode": "PAY_PER_REQUEST"
+}

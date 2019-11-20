@@ -1,0 +1,67 @@
+"""
+Input
+"""
+enum Status {
+	SUCCESS
+	FAILURE
+}
+
+input AddBenchmarkResultInput {
+	team: String!
+	status: Status!
+	comment: String
+	score: Int!
+}
+
+"""
+Mutations
+"""
+type BenchmarkResult @model @key(fields: ["team"]){
+	"""
+	得点の履歴情報は持たず、バックエンドはteamをuniq-keyとする
+	余力あれば履歴情報のキーを付けてpipeline resolverでmutateする
+	
+	ref: https://aws-amplify.github.io/docs/cli-toolchain/graphql#key
+	"""
+	# id: ID!
+	team: String!
+	epochMilliSeconds: Float!
+	status: Status!
+	comment: String
+	score: Int!
+}
+
+type BenchmarkResultHistory @model @key(fields: ["team","epochMilliSeconds"]){
+	team: String!
+	epochMilliSeconds: Float!
+	status: Status!
+	comment: String
+	score: Int!
+}
+
+input AddBenchmarkResultHistoryInput {
+  team: String!
+  epochMilliSeconds: Float
+  status: Status!
+  comment: String
+  score: Int!
+}
+
+type ModelBenchmarkResultConnection {
+  items: [BenchmarkResult]
+  nextToken: String
+}
+
+type Mutation {
+	addBenchmarkResult(input: AddBenchmarkResultInput!): BenchmarkResult
+  addBenchmarkResultHistory(input: AddBenchmarkResultHistoryInput!): BenchmarkResultHistory
+}
+
+type Query {
+	listBenchmarkResultsByTeam(team: String!, limit: Int, nextToken: String): ModelBenchmarkResultConnection
+}
+
+type Subscription {
+  onAddBenchmarkResultHistory(team: String): BenchmarkResultHistory @aws_subscribe(mutations: ["addBenchmarkResultHistory"])
+  onAddBenchmarkResult: BenchmarkResult @aws_subscribe (mutations: ["addBenchmarkResult"])
+}
